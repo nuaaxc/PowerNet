@@ -66,7 +66,7 @@ class WeatherEncodingLayer(object):
 
 
 class AttentionWeight(Layer):
-    def __init__(self, n_factor=5, hidden_d=100, **kwargs):
+    def __init__(self, n_factor=5, hidden_d=32, **kwargs):
         self.n_factor = n_factor
         self.hidden_d = hidden_d
         super(AttentionWeight, self).__init__(**kwargs)

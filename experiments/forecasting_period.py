@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.metrics import mean_squared_error
 
 from metrics import mean_absolute_percentage_error
-from models import PowerNet, gbt
+from models import PowerNet_me, gbt
 from setting import APT_CSV, LSTM_RES_DIR, GBT_RES_DIR, FIG_DIR, DATA_SET_DIR
 
 season = {
@@ -56,10 +56,10 @@ def run_lstm():
     # ss = 'autumn_long'
     ss = 'winter_long'
 
-    PowerNet.run_model(apt_fname=APT_CSV % apt_name,
-                       tr_te_split=season[ss],
-                       res_file_pref='%sapt%d_%s' % (LSTM_RES_DIR, apt_name, ss),
-                       lstm_param={'layer1': layer1, 'layer2': layer2})
+    PowerNet_me.run_model(apt_fname=APT_CSV % apt_name,
+                          tr_te_split=season[ss],
+                          res_file_pref='%sapt%d_%s' % (LSTM_RES_DIR, apt_name, ss),
+                          lstm_param={'layer1': layer1, 'layer2': layer2})
 
 
 def draw_mape():

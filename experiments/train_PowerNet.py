@@ -5,7 +5,7 @@ from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 
 from utils import load_matrix
 from setting import DATA_SET_DIR, MODEL_DIR
-from models.PowerNet import build_model as powernet
+from models.PowerNet_me import build_model as powernet
 from models.RNN import build_model as rnn
 
 from sklearn.metrics import mean_squared_error, mean_absolute_error
@@ -47,7 +47,7 @@ def training(X_train_energy, X_train_weather, y_train,
     # train
     print('Training ...')
 
-    early_stopping = EarlyStopping(monitor='val_loss', patience=10)
+    early_stopping = EarlyStopping(monitor='val_loss', patience=30)
     model_checkpoint = ModelCheckpoint(model_path, save_best_only=True, save_weights_only=True)
 
     model.fit(x=[X_train_energy, X_train_weather],
@@ -143,16 +143,16 @@ def prepare(freq, ss, model_config, build_model):
 if __name__ == '__main__':
     PowerNet_config = {
         'NAME': 'PowerNet',
-        'LSTM_DIM': 512,
-        'DENSE_WEATHER_DIM': 256,
-        'DENSE_ATTENTION_DIM': 256,
-        'DENSE_PREDICTION_DIM': 256,
+        'LSTM_DIM': 500,
+        'DENSE_WEATHER_DIM': 500,
+        'DENSE_ATTENTION_DIM': 500,
+        'DENSE_PREDICTION_DIM': 500,
         'DROP_RATE': 0.1,
         'LR': 0.0001,
     }
     training_config = {
         'N_EPOCH': 500,
-        'BATCH_SIZE': 256,
+        'BATCH_SIZE': 128,
     }
     (X_train_energy, X_train_weather, y_train,
      X_valid_energy, X_valid_weather, y_valid,
