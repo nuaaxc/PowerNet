@@ -69,7 +69,7 @@ def test_single_model(X_test, y_test, model_path, is_draw):
         'Freq': parts[parts.index('freq') + 1]
     }
     model = build_model(PowerLSTM_config, X_test.shape[-1])
-    model.load_weights(MODEL_DIR + model_path)
+    model.load_weights(model_path)
     y_pred = model.predict(X_test)[:, 0]
     y_pred = np.exp(y_pred) - 1
 
@@ -176,7 +176,7 @@ def main():
     # test(X_test, y_test, model, model_path, True)
     #
     test_single_model(X_test, y_test,
-                      'PowerLSTM_ss_autumn_freq_1h_lstm1_197_lstm2_171_dense_88_drop_0.1_lr_0.001_mape_0.0817_model.h5',
+                      '../good_model/PowerLSTM_ss_autumn_freq_1h_lstm1_197_lstm2_171_dense_88_drop_0.1_lr_0.001_mape_0.0817_model.h5',
                       True)
 
 
