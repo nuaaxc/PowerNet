@@ -2,7 +2,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import TimeSeriesSplit
-from utils import load_data_svm, load_data
+from utils import load_data
 import numpy as np
 from matplotlib import pyplot
 from metrics import mean_absolute_percentage_error
@@ -210,17 +210,23 @@ def run_model_recursive(apt_fname,
 
 if __name__ == '__main__':
     season = {
-        'spring': {'trb': '2016-04-01', 'tre': '2016-04-28', 'teb': '2016-04-29', 'tee': '2016-04-30'},
-        'summer': {'trb': '2016-07-01', 'tre': '2016-07-28', 'teb': '2016-07-29', 'tee': '2016-07-30'},
-        'autumn': {'trb': '2016-09-01', 'tre': '2016-09-28', 'teb': '2016-09-29', 'tee': '2016-09-30'},
-        'winter': {'trb': '2016-11-01', 'tre': '2016-11-28', 'teb': '2016-11-29', 'tee': '2016-11-30'},
+        '2': {'trb': '2016-02-01', 'tre': '2016-02-26', 'teb': '2016-02-27', 'tee': '2016-02-28'},
+        '3': {'trb': '2016-03-01', 'tre': '2016-03-28', 'teb': '2016-03-29', 'tee': '2016-03-30'},
+        '4': {'trb': '2016-04-01', 'tre': '2016-04-28', 'teb': '2016-04-29', 'tee': '2016-04-30'},
+        '5': {'trb': '2016-05-01', 'tre': '2016-05-28', 'teb': '2016-05-29', 'tee': '2016-05-30'},
+        '6': {'trb': '2016-06-01', 'tre': '2016-06-28', 'teb': '2016-06-29', 'tee': '2016-06-30'},
+        '7': {'trb': '2016-07-01', 'tre': '2016-07-28', 'teb': '2016-07-29', 'tee': '2016-07-30'},
+        '8': {'trb': '2016-08-01', 'tre': '2016-08-28', 'teb': '2016-08-29', 'tee': '2016-08-30'},
+        '9': {'trb': '2016-09-01', 'tre': '2016-09-28', 'teb': '2016-09-29', 'tee': '2016-09-30'},
+        '10': {'trb': '2016-10-01', 'tre': '2016-10-28', 'teb': '2016-10-29', 'tee': '2016-10-30'},
+        '11': {'trb': '2016-11-01', 'tre': '2016-11-28', 'teb': '2016-11-29', 'tee': '2016-11-30'},
     }
     freq = '1h'
-    apt = 39
-    ss = 'autumn'
+    apt = 0
+    ss = '2'
     run_model(apt_fname=APT_CSV % apt,
               tr_te_split=season[ss],
               res_file_pref='%sapt%d_%s' % (GBT_RES_DIR % freq, apt, ss),
               freq=freq,
               is_feat_select=True,
-              is_draw=False)
+              is_draw=True)

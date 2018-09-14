@@ -2,7 +2,7 @@ from setting import APT_CSV, GBT_RES_DIR, \
     SVM_RES_DIR, LSTM_RES_DIR, DATA_SET_DIR
 from models import gbt
 from models import svm
-from models import PowerNet_me
+from models import PowerNet
 
 
 season = {
@@ -15,7 +15,7 @@ season = {
 
 
 def run_lstm(freq):
-    all_apt(PowerNet_me.run_model, LSTM_RES_DIR, freq)
+    all_apt(PowerNet.run_model, LSTM_RES_DIR, freq)
 
 
 def run_svm(freq):

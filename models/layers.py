@@ -36,19 +36,21 @@ class LayerNormalization(Layer):
 
 class EnergyEncodingLayer(object):
     def __init__(self, dim, drop_rate):
-        # self.lstm1 = GRU(dim,
-        #                  return_sequences=True,
-                         # kernel_regularizer=regularizers.l2(0.0001),
-                         # dropout=drop_rate)
-        self.lstm2 = GRU(dim,
-                         return_sequences=True,
-                         # kernel_regularizer=regularizers.l2(0.0001),
-                         )
-        self.batch_norm = BatchNormalization()
+        self.lstm1 = LSTM(dim,
+                          return_sequences=True,
+                          # kernel_regularizer=regularizers.l2(0.0001),
+                          dropout=drop_rate)
+        # self.lstm2 = LSTM(dim,
+        #                   return_sequences=True,
+        # kernel_regularizer=regularizers.l2(0.0001),
+        # )
+        self.projection = Dense(dim)
+        # self.batch_norm = BatchNormalization()
 
     def __call__(self, x):
-        # x = self.lstm1(x)
-        x = self.lstm2(x)
+        x = self.lstm1(x)
+        # x = self.lstm2(x)
+        x = self.projection(x)
         # x = self.batch_norm(x)
         return x
 
@@ -81,16 +83,16 @@ class AttentionWeight(Layer):
                                   initializer='glorot_uniform',
                                   # regularizer=regularizers.l2(0.01),
                                   )
-        # self.W2 = self.add_weight(shape=(self.hidden_d, self.n_factor),
-        #                           name='W2',
-        #                           initializer='glorot_uniform',
-        #                           # regularizer=regularizers.l2(0.01),
-        #                           )
+        self.W2 = self.add_weight(shape=(self.hidden_d, self.n_factor),
+                                  name='W2',
+                                  initializer='glorot_uniform',
+                                  # regularizer=regularizers.l2(0.01),
+                                  )
         super(AttentionWeight, self).build(input_shape)
 
     def call(self, x, **kwargs):
-        # weight = K.softmax(K.dot(K.relu(K.dot(x, self.W1)), self.W2))
-        weight = K.softmax(K.dot(x, self.W1))
+        weight = K.softmax(K.dot(K.relu(K.dot(x, self.W1)), self.W2))
+        # weight = K.softmax(K.dot(x, self.W1))
         return K.permute_dimensions(weight, (0, 2, 1))  # batch_size, n_factor, sequence_length
 
     def compute_output_shape(self, input_shape):
@@ -130,7 +132,7 @@ class PredictLayer(object):
     def __init__(self, dim, input_dim=0, dropout=0.1):
         self.model = Sequential()
         self.model.add(Dense(dim, activation='relu', input_shape=(input_dim,)))
-        self.model.add(Dropout(dropout))
+        # self.model.add(Dropout(dropout))
         # self.model.add(Dense(dim, activation='relu'))
         # self.model.add(Dropout(dropout))
         self.model.add(Dense(1))

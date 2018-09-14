@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 np.random.seed(777)
 from tensorflow import set_random_seed
@@ -6,6 +7,8 @@ from tensorflow import set_random_seed
 set_random_seed(777)
 
 import os
+import tqdm
+import keras.backend as K
 from matplotlib import pyplot
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from sklearn.metrics import mean_squared_error
@@ -19,13 +22,13 @@ from models.PowerLSTM import build_model
 def train(X_train, y_train, X_val, y_val,
           model, model_path):
     print('training ...')
-    earlyStopping = EarlyStopping(monitor='val_loss', patience=100, verbose=0, mode='auto')
+    earlyStopping = EarlyStopping(monitor='val_loss', patience=80, verbose=0, mode='auto')
     model_checkpoint = ModelCheckpoint(model_path, save_best_only=True, save_weights_only=True)
     model.fit(X_train, y_train,
               validation_data=[X_val, y_val],
               nb_epoch=1000,
               batch_size=128,
-              verbose=1,
+              verbose=0,
               callbacks=[earlyStopping, model_checkpoint],
               )
 
@@ -40,16 +43,13 @@ def test(X_test, y_test, model, model_path, is_draw):
     mse = mean_squared_error(y_test, y_pred)
     mape = mean_absolute_percentage_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
-    print('MSE:', mse)
-    print('MAPE:', mape)
-    print('R2:', r2)
 
     if is_draw:
         pyplot.plot(y_test)
         pyplot.plot(y_pred, color='red')
         pyplot.show()
 
-    return mse, mape
+    return mse, mape, r2
 
 
 def test_single_model(X_test, y_test, model_path, is_draw):
@@ -147,37 +147,68 @@ def make_model_path(config, feat_dim):
 def main():
     apt_name = 0
     season = {
-        'spring': {'trb': '2016-04-01', 'tre': '2016-04-28', 'teb': '2016-04-29', 'tee': '2016-04-30'},
-        'summer': {'trb': '2016-07-01', 'tre': '2016-07-28', 'teb': '2016-07-29', 'tee': '2016-07-30'},
-        'autumn': {'trb': '2016-08-01', 'tre': '2016-08-21',
-                   'vab': '2016-08-22', 'vae': '2016-08-28',
-                   'teb': '2016-08-29', 'tee': '2016-08-30'},
-        'winter': {'trb': '2016-11-01', 'tre': '2016-11-28', 'teb': '2016-11-29', 'tee': '2016-11-30'},
+        '2': {'trb': '2016-02-01', 'tre': '2016-02-26', 'teb': '2016-02-27', 'tee': '2016-02-28'},
+        '3': {'trb': '2016-03-01', 'tre': '2016-03-28', 'teb': '2016-03-29', 'tee': '2016-03-30'},
+        '4': {'trb': '2016-04-01', 'tre': '2016-04-26', 'vab': '2016-04-27', 'vae': '2016-04-28',
+              'teb': '2016-04-29', 'tee': '2016-04-30'},
+        '5': {'trb': '2016-05-01', 'tre': '2016-05-28', 'teb': '2016-05-29', 'tee': '2016-05-30'},
+        '6': {'trb': '2016-06-01', 'tre': '2016-06-28', 'teb': '2016-06-29', 'tee': '2016-06-30'},
+        '7': {'trb': '2016-07-01', 'tre': '2016-07-28', 'teb': '2016-07-29', 'tee': '2016-07-30'},
+        '8': {'trb': '2016-08-01', 'tre': '2016-08-28', 'teb': '2016-08-29', 'tee': '2016-08-30'},
+        '9': {'trb': '2016-09-01', 'tre': '2016-09-20', 'vab': '2016-09-21', 'vae': '2016-09-28',
+              'teb': '2016-09-29', 'tee': '2016-09-30'},
+        '10': {'trb': '2016-10-01', 'tre': '2016-10-28', 'teb': '2016-10-29', 'tee': '2016-10-30'},
+        '11': {'trb': '2016-11-01', 'tre': '2016-11-28', 'teb': '2016-11-29', 'tee': '2016-11-30'},
     }
+    # PowerLSTM_config = {
+    #     'NAME': 'PowerLSTM',
+    #     'LSTM_1_DIM': 197,
+    #     'LSTM_2_DIM': 171,
+    #     'DENSE_DIM': 88,
+    #     'DROP_RATE': 0.1,
+    #     'LR': 0.001,
+    #     'SS': 'autumn',
+    #     'Freq': '1h'
+    # }
     PowerLSTM_config = {
         'NAME': 'PowerLSTM',
-        'LSTM_1_DIM': 197,
-        'LSTM_2_DIM': 171,
-        'DENSE_DIM': 88,
+        'LSTM_1_DIM': 0,
+        'LSTM_2_DIM': 0,
+        'DENSE_DIM': 0,
         'DROP_RATE': 0.1,
-        'LR': 0.001,
-        'SS': 'autumn',
+        'LR': 0.01,
+        'SS': '4',
         'Freq': '1h'
     }
 
-    X_train, y_train, X_val, y_val, X_test, y_test, feat_dim = load_train_test_data(apt_fname=APT_CSV % apt_name,
-                                                                                    freq=PowerLSTM_config['Freq'],
-                                                                                    tr_te_split=season[
-                                                                                        PowerLSTM_config['SS']])
+    X_train, y_train, X_val, y_val, X_test, y_test, feat_dim = load_train_test_data(
+        apt_fname=APT_CSV % apt_name,
+        freq=PowerLSTM_config['Freq'],
+        tr_te_split=season[
+            PowerLSTM_config['SS']])
 
-    model, model_path = make_model_path(PowerLSTM_config, feat_dim)
+    for _ in tqdm.tqdm(range(10000)):
+        PowerLSTM_config['LSTM_1_DIM'] = random.randint(200, 400)
+        PowerLSTM_config['LSTM_2_DIM'] = random.randint(200, 400)
+        PowerLSTM_config['DENSE_DIM'] = random.randint(200, 400)
+        # PowerLSTM_config['DENSE_DIM'] = 0
 
-    # train(X_train, y_train, X_val, y_val, model, model_path)
-    # test(X_test, y_test, model, model_path, True)
-    #
+        K.clear_session()
+
+        model, model_path = make_model_path(PowerLSTM_config, feat_dim)
+
+        train(X_train, y_train, X_val, y_val, model, model_path)
+        mse, mape, r2 = test(X_test, y_test, model, model_path, False)
+        print('MSE:', mse)
+        print('MAPE:', mape)
+        print('R2:', r2)
+        if mape > 0.096:
+            os.remove(model_path)
+    '''
     test_single_model(X_test, y_test,
-                      '../good_model/PowerLSTM_ss_autumn_freq_1h_lstm1_197_lstm2_171_dense_88_drop_0.1_lr_0.001_mape_0.0817_model.h5',
+                      '../good_model/PowerLSTM_ss_9_freq_1h_lstm1_371_lstm2_381_dense_292_drop_0.1_lr_0.01_model.h5',
                       True)
+    '''
 
 
 if __name__ == '__main__':

@@ -11,6 +11,7 @@ class PredictLayer(object):
         self.model = Sequential()
         self.model.add(Dense(dense_d, input_shape=(1, input_d,), activation='sigmoid'))
         # self.model.add(Dropout(dropout))
+        # self.model.add(Dense(1, input_shape=(input_d,)))
         self.model.add(Dense(1))
 
     def __call__(self, x):
@@ -27,9 +28,10 @@ class RNNLayer(object):
                           return_sequences=True,
                           # kernel_regularizer=regularizers.l2(0.0001),
                           )
-        self.dense = Dense(dense_d, activation='sigmoid')
+        self.dense = Dense(dense_d, activation='relu')
         self.max_pooling = GlobalMaxPooling1D()
         self.average_pooling = GlobalAveragePooling1D()
+        self.output = Dense(1)
 
     def __call__(self, x):
         x = self.lstm1(x)
